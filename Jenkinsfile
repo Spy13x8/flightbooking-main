@@ -17,13 +17,7 @@ pipeline {
             steps {
                 script {
                     def workspace = pwd()
-                    if (isUnix()) {
-                        // For Linux/macOS Jenkins agents
-                        sh "docker run --rm -v ${workspace}:/app -w /app ${IMAGE} mvn clean package -DskipTests"
-                    } else {
-                        // For Windows Jenkins agents
-                        powershell "docker run --rm -v ${workspace}:/app -w /app ${IMAGE} mvn clean package -DskipTests"
-                    }
+                    powershell """docker run --rm -v "${workspace}:/app" -w /app ${IMAGE} mvn clean package -DskipTests"""
                 }
             }
         }
@@ -32,11 +26,7 @@ pipeline {
             steps {
                 script {
                     def workspace = pwd()
-                    if (isUnix()) {
-                        sh "docker run --rm -v ${workspace}:/app -w /app ${IMAGE} mvn test"
-                    } else {
-                        powershell "docker run --rm -v ${workspace}:/app -w /app ${IMAGE} mvn test"
-                    }
+                    powershell """docker run --rm -v "${workspace}:/app" -w /app ${IMAGE} mvn test"""
                 }
             }
         }
