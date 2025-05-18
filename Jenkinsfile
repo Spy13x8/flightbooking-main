@@ -2,9 +2,14 @@ pipeline {
     agent any
 
     environment {
-        PATH = "C:/WINDOWS/SYSTEM32"
-        IMAGE = 'sahil1318/flightbooking:latest'
-    }
+            JAR_NAME = 'flightBooking-0.0.1-SNAPSHOT.jar'
+            DOCKER_IMAGE_NAME = 'sahil1318/flightbooking'  // Replace with your Docker Hub repo or desired image name
+            DOCKER_IMAGE_TAG = 'latest' // or use build number or git commit hash for tagging
+            EC2_USER = 'ec2-user'
+            EC2_HOST = ''
+            WORKSPACE_DIR = 'C:/ProgramData/Jenkins/.jenkins/workspace/flightbooking'
+            DOCKERFILE_DIR = 'flightbooking-main/Dockerfile flightbooking'
+        }
 
     stages {
         stage('Checkout') {
@@ -16,8 +21,12 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    def workspace = pwd()
-                    powershell """docker run --rm -v "${workspace}:/app" -w /app ${IMAGE} mvn clean package -DskipTests"""
+                    bat """
+                    docker run --rm -u 0 ^
+                        -v C:/ProgramData/Jenkins/.jenkins/workspace/flightbooking:/app ^
+                        -w /app/Flightbooking ^
+                        maven:3.8.5-openjdk-17 mvn clean package -DskipTests
+                    """
                 }
             }
         }
@@ -25,9 +34,52 @@ pipeline {
         stage('Test') {
             steps {
                 script {
-                    def workspace = pwd()
-                    powershell """docker run --rm -v "${workspace}:/app" -w /app ${IMAGE} mvn test"""
+                    bat """
+                    docker run --rm -u 0 ^
+                        -v C:/ProgramData/Jenkins/.jenkins/workspace/flightbooking:/app ^
+                        -w /app/Flightbooking ^
+                        maven:3.8.5-openjdk-17 mvn test
+                    """
                 }
+            }
+        }
+
+        stage('Build Docker Image') {
+                    steps {
+                        bat """
+                        cd ${WORKSPACE_DIR}
+                        docker build -t ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} -f  ${DOCKERFILE_DIR}.
+                        """
+                    }
+                }
+
+        stage('Deploy and Run on EC2') {
+            steps {
+                withCredentials([file(credentialsId: 'flightbooking-key', variable: 'PEM_PATH')]) {
+                    script {
+                        bat """
+                        for /f "delims=" %%u in ('whoami') do (
+                            icacls "%PEM_PATH%" /inheritance:r
+                            icacls "%PEM_PATH%" /grant:r "%%u:R"
+                        )
+                        """
+
+                        bat """
+                        scp -o StrictHostKeyChecking=no -i "%PEM_PATH%" ^
+                            Flightbooking/target/Flightbooking-0.0.1-SNAPSHOT.jar ec2-user@35.175.140.93:~/
+                        """
+
+                        bat """
+                        cmd /c ssh -o StrictHostKeyChecking=no -i "%PEM_PATH%" ${EC2_USER}@${EC2_HOST} ^
+                                                       "docker pull ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} && docker stop flightbooking || true && docker rm flightbooking || true && docker run -d --name flightbooking -p 9090:9090 ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}"
+                        """
+
+
+
+                    }
+                }
+
+
             }
         }
     }
