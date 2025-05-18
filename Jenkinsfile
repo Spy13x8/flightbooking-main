@@ -8,7 +8,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/nikunjchhatani/flightbooking_honor_vi_sem'
+                git branch: 'main', url: 'https://github.com/Spy13x8/flightbooking-main'
             }
         }
 
