@@ -16,7 +16,7 @@ pipeline {
             steps {
                 script {
                     def workspace = pwd()
-                    bat """docker run --rm -v "${workspace}:/app" -w /app ${IMAGE} mvn clean package -DskipTests"""
+                    powershell """docker run --rm -v "${workspace}:/app" -w /app ${IMAGE} mvn clean package -DskipTests"""
                 }
             }
         }
@@ -25,7 +25,7 @@ pipeline {
             steps {
                 script {
                     def workspace = pwd()
-                    bat """docker run --rm -v "${workspace}:/app" -w /app ${IMAGE} mvn test"""
+                    powershell """docker run --rm -v "${workspace}:/app" -w /app ${IMAGE} mvn test"""
                 }
             }
         }
