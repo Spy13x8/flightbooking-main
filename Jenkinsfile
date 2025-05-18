@@ -15,9 +15,8 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    bat """
-                    docker run --rm -v ${pwd()}:/app -w /app ${IMAGE} mvn clean package -DskipTests
-                    """
+                    def workspace = pwd()
+                    bat """docker run --rm -v "${workspace}:/app" -w /app ${IMAGE} mvn clean package -DskipTests"""
                 }
             }
         }
@@ -25,12 +24,10 @@ pipeline {
         stage('Test') {
             steps {
                 script {
-                    bat """
-                    docker run --rm -v ${pwd()}:/app -w /app ${IMAGE} mvn test
-                    """
+                    def workspace = pwd()
+                    bat """docker run --rm -v "${workspace}:/app" -w /app ${IMAGE} mvn test"""
                 }
             }
         }
-
     }
 }
