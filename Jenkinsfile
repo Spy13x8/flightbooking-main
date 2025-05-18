@@ -15,7 +15,7 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    echo """
+                    bat """
                     docker run --rm -v ${pwd()}:/app -w /app ${IMAGE} mvn clean package -DskipTests
                     """
                 }
@@ -25,7 +25,7 @@ pipeline {
         stage('Test') {
             steps {
                 script {
-                    echo """
+                    bat """
                     docker run --rm -v ${pwd()}:/app -w /app ${IMAGE} mvn test
                     """
                 }
