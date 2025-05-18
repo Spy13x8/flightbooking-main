@@ -24,7 +24,7 @@ pipeline {
                     bat """
                     docker run --rm -u 0 ^
                         -v C:/ProgramData/Jenkins/.jenkins/workspace/flightbooking:/app ^
-                        -w /app/Flightbooking ^
+                        -w /app/flightbooking ^
                         maven:3.8.5-openjdk-17 mvn clean package -DskipTests
                     """
                 }
@@ -37,7 +37,7 @@ pipeline {
                     bat """
                     docker run --rm -u 0 ^
                         -v C:/ProgramData/Jenkins/.jenkins/workspace/flightbooking:/app ^
-                        -w /app/Flightbooking ^
+                        -w /app/flightbooking ^
                         maven:3.8.5-openjdk-17 mvn test
                     """
                 }
@@ -66,7 +66,7 @@ pipeline {
 
                         bat """
                         scp -o StrictHostKeyChecking=no -i "%PEM_PATH%" ^
-                            Flightbooking/target/Flightbooking-0.0.1-SNAPSHOT.jar ec2-user@35.175.140.93:~/
+                            flightbooking/target/flightbooking-0.0.1-SNAPSHOT.jar ec2-user@35.175.140.93:~/
                         """
 
                         bat """
