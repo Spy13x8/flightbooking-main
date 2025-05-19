@@ -6,7 +6,7 @@ pipeline {
             DOCKER_IMAGE_NAME = 'sahil1318/flightbooking'  // Replace with your Docker Hub repo or desired image name
             DOCKER_IMAGE_TAG = 'latest' // or use build number or git commit hash for tagging
             EC2_USER = 'ec2-user'
-            EC2_HOST = ''
+            EC2_HOST = '35.174.123.219'
             WORKSPACE_DIR = 'C:/ProgramData/Jenkins/.jenkins/workspace/flightbooking'
             DOCKERFILE_DIR = 'flightbooking-main/Dockerfile flightbooking'
         }
